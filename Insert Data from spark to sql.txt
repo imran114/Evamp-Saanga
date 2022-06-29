@@ -1,0 +1,61 @@
+package New.savingCsv;
+
+import java.util.Properties;
+
+import org.apache.spark.SparkConf;
+import org.apache.spark.sql.Dataset;
+import org.apache.spark.sql.Row;
+import org.apache.spark.sql.SparkSession;
+import org.apache.spark.sql.functions.*;
+import org.apache.spark.sql.*;
+import org.apache.spark.sql.types.*;
+
+
+public class App 
+{
+    public static void main( String[] args )
+    {
+    	
+    	SparkConf conf = new SparkConf().setAppName("Text File Data Load").setMaster("local").set("spark.driver.host","localhost").set("spark.testing.memory", "2147480000");		
+
+	    SparkSession spark = SparkSession.builder().config(conf).getOrCreate();
+		Dataset<Row> df2 = spark.read().format("org.apache.spark.sql.execution.datasources.csv.CSVFileFormat")
+				.option("sep", ",").option("inferSchema", true).option("header", true)
+				.load("E:/CarsData.csv");
+	//	Dataset<Row> df2 = df.withColumnRenamed("modelDate", "modelYear").drop("modelYear","fuelType","vehicleTransmission","mileageFromOdometer");
+		
+		System.out.println("Distint values ");
+//		df.agg(functions.countDistinct("manufacturer")).show();
+//		df.groupBy("manufacturer").count().show(100); //values count
+//		df.select(col("manufacturer").groupBy(col("itemCondition")));
+//		df.count();
+//		df.withColumnRenamed("manufacturer", "Brand").show(); //Renaming a Column
+	
+//		df.drop("mileageFromOdometer","description").show();
+		
+//		df.where(df.col("modelDate").equalTo("2011")).show();
+
+		/*
+		 * df.write().format("jdbc").option("url", "jdbc:mysql://localhost:3306/sakila")
+		 * .option("driver", "com.mysql.jdbc.Driver") .option("dbtable",
+		 * "CarsData").option("user", "root").option("password", "").mode("append");
+		 * 
+		 */
+		 Properties connectionProperties = new Properties();
+		 connectionProperties.setProperty("Driver", "com.mysql.jdbc.Driver");
+		 connectionProperties.setProperty("user", "root");
+		 connectionProperties.setProperty("password", "mysql");
+
+		
+//		df2.drop("modelYear").show();
+		
+			
+		df2.show();
+		df2.write().mode(SaveMode.Append).jdbc("jdbc:mysql://localhost:3306/sakila", "cars_details", connectionProperties);
+			
+		
+
+		
+
+    }
+}
